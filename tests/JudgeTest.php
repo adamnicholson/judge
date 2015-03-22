@@ -46,7 +46,7 @@ class JudgeTest extends TestCase
         $this->assertTrue($judge->check('adam', 'ORDERS'));
     }
 
-    public function testCheckWithSingleLevelTreeReturnsfalseWhenRevoked()
+    public function testCheckWithSingleLevelTreeReturnsFalseWhenRevoked()
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
@@ -57,13 +57,37 @@ class JudgeTest extends TestCase
         $this->assertFalse($judge->check('adam', 'ORDERS'));
     }
 
-    public function testCheckWithSingleLevelTreeReturnsfalseWhenNotSet()
+    public function testCheckWithSingleLevelTreeReturnsFalseWhenNotSet()
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
         $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
+
+        $this->assertFalse($judge->check('adam', 'ORDERS'));
+    }
+
+    public function testCheckWithMultiLevelTreeReturnsTrueWhenRuleNotSetForUserButGrantedForParent()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn('administrator');
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
+        $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+
+        $this->assertTrue($judge->check('adam', 'ORDERS'));
+    }
+
+    public function testCheckWithMultiLevelTreeReturnsFalseWhenRuleNotSetForUserButRevokedForParent()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn('administrator');
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
+        $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(Repository::STATE_REVOKE);
 
         $this->assertFalse($judge->check('adam', 'ORDERS'));
     }
