@@ -180,4 +180,32 @@ class JudgeTest extends TestCase
 
         $this->assertTrue($judge->check('adam', 'ORDERS_EDIT'));
     }
+
+    public function testCheckReturnsTrueWhereNoRuleSetForSpecificContextButRuleWithoutContextIsGranted()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn(null);
+        $repo->getRoleParent('ORDERS_EDIT')->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', 5)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(Repository::STATE_GRANT);
+
+        $this->assertTrue($judge->check('adam', 'ORDERS_EDIT', 5));
+    }
+
+    public function testThatContextIsExcludedFromParentRoleChecks()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn(null);
+        $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
+        $repo->getRoleParent('ORDERS')->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', 5)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+
+        $this->assertTrue($judge->check('adam', 'ORDERS_EDIT', 5));
+    }
 }

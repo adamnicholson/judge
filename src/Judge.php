@@ -37,6 +37,11 @@ class Judge
             $innerIdentity = $this->getRepository()->getIdentityParent($innerIdentity);
         }
 
+        // Check this role without the context
+        if ($context) {
+            return $this->check($identity, $role);
+        }
+
         // Work up the role tree
         if ($parentRole = $this->getRepository()->getRoleParent($role)) {
             return $this->check($identity, $parentRole);
