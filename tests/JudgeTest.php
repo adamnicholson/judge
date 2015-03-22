@@ -208,4 +208,38 @@ class JudgeTest extends TestCase
 
         $this->assertTrue($judge->check('adam', 'ORDERS_EDIT', 5));
     }
+
+    public function testEnforceThrowsExceptionWhenCheckFails()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new JudgeTestStubAlwaysReturningFalseToCheck($repo->reveal());
+
+        $this->setExpectedException('Judge\Exception\NotAuthorizedException');
+
+        $judge->enforce('adam', 'ORDERS_EDIT', 5);
+    }
+
+    public function testEnforceReturnsTrueWhenCheckPasses()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new JudgeTestStubAlwaysReturningTrueToCheck($repo->reveal());
+
+        $this->assertTrue($judge->enforce('adam', 'ORDERS_EDIT', 5));
+    }
+}
+
+class JudgeTestStubAlwaysReturningTrueToCheck extends Judge
+{
+    public function check($identity, $role, $context = null)
+    {
+        return true;
+    }
+}
+
+class JudgeTestStubAlwaysReturningFalseToCheck extends Judge
+{
+    public function check($identity, $role, $context = null)
+    {
+        return false;
+    }
 }

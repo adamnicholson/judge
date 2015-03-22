@@ -2,6 +2,7 @@
 
 namespace Judge;
 
+use Judge\Exception\NotAuthorizedException;
 use Judge\Repository\Repository;
 
 class Judge
@@ -51,6 +52,26 @@ class Judge
     }
 
     /**
+     * Enforce a rule being granted before proceeding.
+     *
+     * If access is revoked, throw a NotAuthorizedException, halting script
+     * execution unless it is caught
+     *
+     * @param $identity
+     * @param $role
+     * @param null $context
+     * @throws Exception\NotAuthorizedException
+     * @return bool
+     */
+    public function enforce($identity, $role, $context = null)
+    {
+        if (!$this->check($identity, $role, $context)) {
+            throw new NotAuthorizedException();
+        }
+
+        return true;
+    }
+
      * @param string $identity
      * @param string $role
      * @param string|null $context
