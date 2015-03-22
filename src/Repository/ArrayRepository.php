@@ -125,5 +125,4 @@ class ArrayRepository implements Repository
     {
         return array_keys($this->identities);
     }
-
 }
