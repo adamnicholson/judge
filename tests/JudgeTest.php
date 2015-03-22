@@ -35,7 +35,7 @@ class JudgeTest extends TestCase
         $this->assertEquals($judge->getRepository(), $repo->reveal());
     }
 
-    public function testCheckWithSingleLevelTreeReturnsTrueWhenGranted()
+    public function testCheckWithSingleLevelIdentityTreeReturnsTrueWhenGranted()
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
@@ -46,7 +46,7 @@ class JudgeTest extends TestCase
         $this->assertTrue($judge->check('adam', 'ORDERS'));
     }
 
-    public function testCheckWithSingleLevelTreeReturnsFalseWhenRevoked()
+    public function testCheckWithSingleLevelIdentityTreeReturnsFalseWhenRevoked()
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
@@ -57,18 +57,19 @@ class JudgeTest extends TestCase
         $this->assertFalse($judge->check('adam', 'ORDERS'));
     }
 
-    public function testCheckWithSingleLevelTreeReturnsFalseWhenNotSet()
+    public function testCheckWithSingleLevelIdentityTreeReturnsFalseWhenNotSet()
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
+        $repo->getRoleParent('ORDERS')->willReturn(null);
         $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
 
         $this->assertFalse($judge->check('adam', 'ORDERS'));
     }
 
-    public function testCheckWithMultiLevelTreeReturnsTrueWhenRuleNotSetForUserButGrantedForParent()
+    public function testCheckWithMultiLevelIdentityTreeReturnsTrueWhenRuleNotSetForUserButGrantedForParent()
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
@@ -80,7 +81,7 @@ class JudgeTest extends TestCase
         $this->assertTrue($judge->check('adam', 'ORDERS'));
     }
 
-    public function testCheckWithMultiLevelTreeReturnsFalseWhenRuleNotSetForUserButRevokedForParent()
+    public function testCheckWithMultiLevelIdentityTreeReturnsFalseWhenRuleNotSetForUserButRevokedForParent()
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
@@ -90,5 +91,93 @@ class JudgeTest extends TestCase
         $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(Repository::STATE_REVOKE);
 
         $this->assertFalse($judge->check('adam', 'ORDERS'));
+    }
+
+    public function testCheckWithMultiLevelIdentityTreeReturnsFalseWhenRuleNotSetForIdentityOrParents()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn('administrator');
+        $repo->getIdentityParent('administrator')->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
+        $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(null);
+        $repo->getRoleParent('ORDERS')->willReturn(null);
+
+        $this->assertFalse($judge->check('adam', 'ORDERS'));
+    }
+
+    public function testCheckWithMultiLevelRoleTreeReturnsTrueWhenNotSetForRoleButGrantedForParent()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn(null);
+        $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+
+        $this->assertTrue($judge->check('adam', 'ORDERS_EDIT'));
+    }
+
+    public function testCheckWithMultiLevelRoleTreeReturnsFalseWhenNotSetForRoleButRevokedForParent()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn(null);
+        $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_REVOKE);
+
+        $this->assertFalse($judge->check('adam', 'ORDERS_EDIT'));
+    }
+
+    public function testCheckWithMultiLevelRoleTreeReturnsFalseWhenNotSetForRoleOrParentRoles()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn(null);
+        $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
+        $repo->getRoleParent('ORDERS')->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
+
+        $this->assertFalse($judge->check('adam', 'ORDERS_EDIT'));
+    }
+
+    public function testCheckReturnsFalseWhenNoRulesAreSetForAnyCombinationUpTheIdentityAndRoleTrees()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn('admins');
+        $repo->getIdentityParent('admins')->willReturn(null);
+        $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
+        $repo->getRoleParent('ORDERS')->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('admins', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
+        $repo->getRuleState('admins', 'ORDERS', null)->willReturn(null);
+
+        $this->assertFalse($judge->check('adam', 'ORDERS_EDIT'));
+    }
+
+    public function testCheckReturnsTrueWhenNoDirectRulesSetButParentIdentityIsGrantedToParentRole()
+    {
+        $repo = $this->prophesize('Judge\Repository\Repository');
+        $judge = new Judge($repo->reveal());
+
+        $repo->getIdentityParent('adam')->willReturn('admins');
+        $repo->getIdentityParent('admins')->willReturn(null);
+        $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
+        $repo->getRoleParent('ORDERS')->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('admins', 'ORDERS_EDIT', null)->willReturn(null);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
+        $repo->getRuleState('admins', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+
+        $this->assertTrue($judge->check('adam', 'ORDERS_EDIT'));
     }
 }

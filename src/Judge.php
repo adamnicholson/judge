@@ -34,7 +34,12 @@ class Judge
                 return $state === Repository::STATE_GRANT;
             }
 
-            $innerIdentity = $this->getRepository()->getIdentityParent($identity);
+            $innerIdentity = $this->getRepository()->getIdentityParent($innerIdentity);
+        }
+
+        // Work up the role tree
+        if ($parentRole = $this->getRepository()->getRoleParent($role)) {
+            return $this->check($identity, $parentRole);
         }
 
         return false;
