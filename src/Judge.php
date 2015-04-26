@@ -3,18 +3,19 @@
 namespace Judge;
 
 use Judge\Exception\NotAuthorizedException;
+use Judge\Repository\ArrayRepository;
 use Judge\Repository\Repository;
 
 class Judge
 {
     /**
-     * @var Repository\Repository
+     * @var \Judge\Repository\Repository
      */
     private $repository;
 
-    public function __construct(Repository $repository)
+    public function __construct(Repository $repository = null)
     {
-        $this->repository = $repository;
+        $this->repository = $repository ?: new ArrayRepository();
     }
 
     /**
