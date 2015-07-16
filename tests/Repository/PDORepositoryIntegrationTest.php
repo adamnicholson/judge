@@ -10,7 +10,7 @@ class PDORepositoryIntegrationTest extends RepositoryIntegrationTestCase
 
     public function setUp()
     {
-        $this->pdo = new PDO('sqlite::memory', 'root');
+        $this->pdo = new PDO('sqlite::memory:', 'root');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $this->pdo->exec("
