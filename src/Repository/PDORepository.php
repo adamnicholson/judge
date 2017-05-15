@@ -31,10 +31,11 @@ class PDORepository implements Repository
     {
         $context = $context ?: '';
 
-        $exists = $this->query(
-            "SELECT * FROM " . $this->ruleTableName . " WHERE `identity` = ? AND `role` = ? AND `context` = ?",
-            [$identity, $role, $context]
-        )->fetchObject();
+        $exists = $this->query("SELECT * FROM " . $this->ruleTableName . " WHERE `identity` = ? AND `role` = ? AND `context` = ?", [
+                $identity,
+                $role,
+                $context
+        ])->fetchObject();
 
         if (!$exists) {
             $this->query("INSERT INTO " . $this->ruleTableName . " (`identity`, `role`, `context`, `state`) VALUES (?, ?, ?, ?)", [

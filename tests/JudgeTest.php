@@ -8,13 +8,13 @@ class JudgeTest extends TestCase
 {
     public function testInstance()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $this->assertInstanceOf('Judge\Judge', new Judge($repo->reveal()));
     }
 
     public function testGrantUpdatesRepository()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
         $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_ALLOW)->shouldBeCalled();
         $judge->allow('adam', 'ORDERS');
@@ -22,7 +22,7 @@ class JudgeTest extends TestCase
 
     public function testRevokeUpdatesRepository()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
         $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_DENY)->shouldBeCalled();
         $judge->deny('adam', 'ORDERS');
@@ -30,14 +30,14 @@ class JudgeTest extends TestCase
 
     public function testGetRepositoryReturnsRepo()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
         $this->assertEquals($judge->getRepository(), $repo->reveal());
     }
 
     public function testCheckWithSingleLevelIdentityTreeReturnsTrueWhenGranted()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -48,7 +48,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithSingleLevelIdentityTreeReturnsFalseWhenRevoked()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -59,7 +59,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithSingleLevelIdentityTreeReturnsFalseWhenNotSet()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -71,7 +71,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithMultiLevelIdentityTreeReturnsTrueWhenRuleNotSetForUserButGrantedForParent()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn('administrator');
@@ -83,7 +83,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithMultiLevelIdentityTreeReturnsFalseWhenRuleNotSetForUserButRevokedForParent()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn('administrator');
@@ -95,7 +95,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithMultiLevelIdentityTreeReturnsFalseWhenRuleNotSetForIdentityOrParents()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn('administrator');
@@ -109,7 +109,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithMultiLevelRoleTreeReturnsTrueWhenNotSetForRoleButGrantedForParent()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -122,7 +122,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithMultiLevelRoleTreeReturnsFalseWhenNotSetForRoleButRevokedForParent()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -135,7 +135,7 @@ class JudgeTest extends TestCase
 
     public function testCheckWithMultiLevelRoleTreeReturnsFalseWhenNotSetForRoleOrParentRoles()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -149,7 +149,7 @@ class JudgeTest extends TestCase
 
     public function testCheckReturnsFalseWhenNoRulesAreSetForAnyCombinationUpTheIdentityAndRoleTrees()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn('admins');
@@ -166,7 +166,7 @@ class JudgeTest extends TestCase
 
     public function testCheckReturnsTrueWhenNoDirectRulesSetButParentIdentityIsGrantedToParentRole()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn('admins');
@@ -183,7 +183,7 @@ class JudgeTest extends TestCase
 
     public function testCheckReturnsTrueWhereNoRuleSetForSpecificContextButRuleWithoutContextIsGranted()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -196,7 +196,7 @@ class JudgeTest extends TestCase
 
     public function testThatContextIsExcludedFromParentRoleChecks()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
@@ -211,17 +211,17 @@ class JudgeTest extends TestCase
 
     public function testEnforceThrowsExceptionWhenCheckFails()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new JudgeTestStubAlwaysReturningFalseToCheck($repo->reveal());
 
-        $this->setExpectedException('Judge\Exception\NotAuthorizedException');
+        $this->setExpectedException(Exception\NotAuthorizedException::class);
 
         $judge->enforce('adam', 'ORDERS_EDIT', 5);
     }
 
     public function testEnforceReturnsTrueWhenCheckPasses()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new JudgeTestStubAlwaysReturningTrueToCheck($repo->reveal());
 
         $this->assertTrue($judge->enforce('adam', 'ORDERS_EDIT', 5));
@@ -229,7 +229,7 @@ class JudgeTest extends TestCase
 
     public function testAttemptCallableFiredWhenCheckPasses()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new JudgeTestStubAlwaysReturningTrueToCheck($repo->reveal());
 
         $marker = 1;
@@ -244,7 +244,7 @@ class JudgeTest extends TestCase
 
     public function testAttemptCallableNotFiredWhenCheckPasses()
     {
-        $repo = $this->prophesize('Judge\Repository\Repository');
+        $repo = $this->prophesize(Repository::class);
         $judge = new JudgeTestStubAlwaysReturningFalseToCheck($repo->reveal());
 
         $marker = 1;

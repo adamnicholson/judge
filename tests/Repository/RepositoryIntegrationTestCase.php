@@ -46,7 +46,7 @@ abstract class RepositoryIntegrationTestCase extends TestCase
 
     public function test_rule_saves_can_be_overridden()
     {
-        $repo = $this->getRepository();#
+        $repo = $this->getRepository();
         $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_ALLOW);
         $this->assertEquals(Repository::STATE_ALLOW, $repo->getRuleState('adam', 'ORDERS', null));
         $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_ALLOW);
