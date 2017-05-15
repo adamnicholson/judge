@@ -4,9 +4,9 @@ namespace Judge\Repository;
 
 class PDORepository implements Repository
 {
-    private $identityTable = 'judge_identity';
-    private $roleTable = 'judge_role';
-    private $ruleTable = 'judge_rule';
+    private $identityTableName = 'judge_identity';
+    private $roleTableName = 'judge_role';
+    private $ruleTableName = 'judge_rule';
 
     /**
      * @var \PDO
@@ -29,7 +29,7 @@ class PDORepository implements Repository
      */
     public function saveRule($identity, $role, $context, $state)
     {
-        $this->query("INSERT INTO " . $this->ruleTable . " (`identity`, `role`, `context`, `state`) VALUES (?, ?, ?, ?)", [
+        $this->query("INSERT INTO " . $this->ruleTableName . " (`identity`, `role`, `context`, `state`) VALUES (?, ?, ?, ?)", [
                 $identity,
                 $role,
                 $context ?: '',
@@ -45,7 +45,7 @@ class PDORepository implements Repository
      */
     public function getRuleState($identity, $role, $context)
     {
-        $rule = $this->query("SELECT * FROM " . $this->ruleTable . " WHERE `identity` = ? AND `role` = ? AND `context` = ?",[
+        $rule = $this->query("SELECT * FROM " . $this->ruleTableName . " WHERE `identity` = ? AND `role` = ? AND `context` = ?",[
                 $identity,
                 $role,
                 $context ?: ''
@@ -61,7 +61,7 @@ class PDORepository implements Repository
      */
     public function saveRole($role, $parent)
     {
-        $this->query("INSERT INTO " . $this->roleTable . " (`name`, `parent`) VALUES (?, ?)", [$role, $parent]);
+        $this->query("INSERT INTO " . $this->roleTableName . " (`name`, `parent`) VALUES (?, ?)", [$role, $parent]);
     }
 
     /**
@@ -70,7 +70,7 @@ class PDORepository implements Repository
      */
     public function removeRole($role)
     {
-        $this->query("DELETE FROM " . $this->roleTable . " WHERE `name` = ?", [$role]);
+        $this->query("DELETE FROM " . $this->roleTableName . " WHERE `name` = ?", [$role]);
     }
 
     /**
@@ -79,7 +79,7 @@ class PDORepository implements Repository
      */
     public function getRoleParent($role)
     {
-        $role = $this->query("SELECT * FROM " . $this->roleTable . " WHERE `name` = ?", [$role])->fetchObject();
+        $role = $this->query("SELECT * FROM " . $this->roleTableName . " WHERE `name` = ?", [$role])->fetchObject();
 
         return $role ? $role->parent : null;
     }
@@ -89,7 +89,7 @@ class PDORepository implements Repository
      */
     public function getRoles()
     {
-        $query = $this->query("SELECT * FROM " . $this->roleTable)->fetchAll();
+        $query = $this->query("SELECT * FROM " . $this->roleTableName)->fetchAll();
 
         return array_map(function ($row) {
                 return $row['name'];
@@ -103,7 +103,7 @@ class PDORepository implements Repository
      */
     public function saveIdentity($identity, $parent = null)
     {
-        $this->query("INSERT INTO " . $this->identityTable . " (`name`, `parent`) VALUES (?, ?)", [$identity, $parent]);
+        $this->query("INSERT INTO " . $this->identityTableName . " (`name`, `parent`) VALUES (?, ?)", [$identity, $parent]);
     }
 
     /**
@@ -112,7 +112,7 @@ class PDORepository implements Repository
      */
     public function removeIdentity($identity)
     {
-        $this->query("DELETE FROM " . $this->identityTable . " WHERE `name` = ?", [$identity]);
+        $this->query("DELETE FROM " . $this->identityTableName . " WHERE `name` = ?", [$identity]);
     }
 
     /**
@@ -121,7 +121,7 @@ class PDORepository implements Repository
      */
     public function getIdentityParent($identity)
     {
-        $identity = $this->query("SELECT * FROM " . $this->identityTable . " WHERE `name` = ?", [$identity])->fetchObject();
+        $identity = $this->query("SELECT * FROM " . $this->identityTableName . " WHERE `name` = ?", [$identity])->fetchObject();
 
         return $identity ? $identity->parent : null;
     }
@@ -133,7 +133,7 @@ class PDORepository implements Repository
      */
     public function getIdentities()
     {
-        $query = $this->query("SELECT * FROM " . $this->identityTable)->fetchAll();
+        $query = $this->query("SELECT * FROM " . $this->identityTableName)->fetchAll();
 
         return array_map(function ($row) {
             return $row['name'];
@@ -150,5 +150,37 @@ class PDORepository implements Repository
         $query = $this->pdo->prepare($statement);
         $query->execute($arguments);
         return $query;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRuleTableName(): string
+    {
+        return $this->ruleTableName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoleTableName(): string
+    {
+        return $this->roleTableName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIdentityTableName(): string
+    {
+        return $this->identityTableName;
+    }
+
+    /**
+     * @return \PDO
+     */
+    public function getPdo(): \PDO
+    {
+        return $this->pdo;
     }
 }
