@@ -17,7 +17,7 @@ class JudgeTest extends TestCase
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
         $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_GRANT)->shouldBeCalled();
-        $judge->grant('adam', 'ORDERS');
+        $judge->allow('adam', 'ORDERS');
     }
 
     public function testRevokeUpdatesRepository()
@@ -25,7 +25,7 @@ class JudgeTest extends TestCase
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
         $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_REVOKE)->shouldBeCalled();
-        $judge->revoke('adam', 'ORDERS');
+        $judge->deny('adam', 'ORDERS');
     }
 
     public function testGetRepositoryReturnsRepo()

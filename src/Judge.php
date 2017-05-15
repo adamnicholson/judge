@@ -92,7 +92,7 @@ class Judge
      * @param string $role
      * @param string|null $context
      */
-    public function grant($identity, $role, $context = null)
+    public function allow($identity, $role, $context = null)
     {
         $this->repository->saveRule($identity, $role, $context, Repository::STATE_GRANT);
     }
@@ -102,13 +102,13 @@ class Judge
      * @param string $role
      * @param string|null $context
      */
-    public function revoke($identity, $role, $context = null)
+    public function deny($identity, $role, $context = null)
     {
         $this->repository->saveRule($identity, $role, $context, Repository::STATE_REVOKE);
     }
 
     /**
-     * @return Repository|Repository\Repository
+     * @return Repository
      */
     public function getRepository()
     {

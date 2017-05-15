@@ -13,17 +13,17 @@ Authorization package for PHP.
 
 Keeping this mental separation between accounts and identities is key - Judge doesn't have any knowledge of, or care about, accounts or users.
 
-To get started with some basic role-based auth, there is no setup required. Just instantiate `Judge`, and `grant` an an identity access to a role:
+To get started with some basic role-based auth, there is no setup required. Just instantiate `Judge`, and `allow` an an identity access to a role:
 
 ```php
 $judge = new Judge();
 
 // Grant access to edit orders
-$judge->grant('adam@example.com', 'EDIT_ORDERS');
+$judge->allow('adam@example.com', 'EDIT_ORDERS');
 $judge->check('adam@example.com', 'EDIT_ORDERS'); // true
 
 // Revoke access to edit orders
-$judge->revoke('adam@example.com', 'EDIT_ORDERS');
+$judge->deny('adam@example.com', 'EDIT_ORDERS');
 $judge->check('adam@example.com', 'EDIT_ORDERS'); // false
 ```
 
@@ -32,10 +32,10 @@ Simple enough? Good, now let's go a little deeper.
 ### Role Contexts
 Simple role-based permissions suit a lot of use cases, but often you hit their limits quickly when an application starts to grow. Say you have a role for "EDIT_ORDERS" which applies to all orders, but you need a single identity to have access to only edit 1 specific order. How would you do this?
 
-In Judge, the way you would achieve this is by using role "contexts". A role context is a third parameter you can pass to `grant()`, `revoke()` and `check()` to add more specificity to your rule. In practice, a context is usually used for unique identifiers such as an order ID:
+In Judge, the way you would achieve this is by using role "contexts". A role context is a third parameter you can pass to `allow()`, `deny()` and `check()` to add more specificity to your rule. In practice, a context is usually used for unique identifiers such as an order ID:
 
 ```php
-$judge->grant('adam@example.com', 'EDIT_ORDERS', '5');
+$judge->allow('adam@example.com', 'EDIT_ORDERS', '5');
 $judge->check('adam@example.com', 'EDIT_ORDERS', '5'); // true
 ```
 
@@ -45,10 +45,10 @@ The benefit of role contexts is due to their ability to inherit rules. If an rul
 $judge = new Judge();
 
 // Grant access to edit all orders
-$judge->grant('adam@example.com', 'EDIT_ORDERS');
+$judge->allow('adam@example.com', 'EDIT_ORDERS');
 
 // Override the above, revoking access specifically to order "10"
-$judge->revoke('adam@example.com', 'EDIT_ORDERS', '10');
+$judge->deny('adam@example.com', 'EDIT_ORDERS', '10');
 
 $judge->check('adam@example.com', 'EDIT_ORDERS'); // true
 $judge->check('adam@example.com', 'EDIT_ORDERS', '5'); // true
@@ -75,7 +75,7 @@ $judge = new Judge();
 $judge->getRepository()->addRole('EDIT_ORDERS', 'ORDERS');
 
 // Grant access to ORDERS and all child roles
-$judge->grant('adam@example.com', 'ORDERS');
+$judge->allow('adam@example.com', 'ORDERS');
 
 $judge->check('adam@example', 'EDIT_ORDERS'); // true
 ```
@@ -91,12 +91,12 @@ $repo->addRole('CHANGE_ORDERS', 'VIEW_ORDERS');
 $repo->addRole('VIEW_ORDERS', 'ORDERS');
 
 // Grant access to ORDERS and all children
-$judge->grant('adam@example.com', 'ORDERS');
+$judge->allow('adam@example.com', 'ORDERS');
 
 $judge->check('adam@example', 'EDIT_ORDERS'); // true
 
 // Override the above for access to CHANGE_ORDERS and its children recursively
-$judge->revoke('adam@example.com', 'CHANGE_ORDERS');
+$judge->deny('adam@example.com', 'CHANGE_ORDERS');
 
 $judge->check('adam@example', 'ORDERS'); // true
 $judge->check('adam@example', 'VIEW_ORDERS'); // true
@@ -114,7 +114,7 @@ $judge = new Judge();
 $repo = $judge->getRepository();
 $repo->addIdentity('adam', 'customer_service');
 
-$judge->grant('customer_service', 'EDIT_ORDERS');
+$judge->allow('customer_service', 'EDIT_ORDERS');
 
 $judge->check('adam', 'EDIT_ORDERS'); // true
 ```
@@ -165,7 +165,7 @@ paul			| ORDERS_VIEW		| 5			| REVOKED
 
 ## Persistence
 
-The main problem with all of the examples so far is that roles & identities are not persisted across requests - meaning you'd need to reconfigure Judge to understand your identity/role hierarchies, and grant/revoke all the relevant permissions, on every request.
+The main problem with all of the examples so far is that roles & identities are not persisted across requests - meaning you'd need to reconfigure Judge to understand your identity/role hierarchies, and allow/deny all the relevant permissions, on every request.
 
 Judge ships with a number of `Judge\Repository\Repository` implementations to persist these relationships:
 
