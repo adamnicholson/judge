@@ -19,7 +19,7 @@ class ArrayRepository implements Repository
      */
     public function saveRule($identity, $role, $context, $state)
     {
-        $this->rules[] = [
+        $this->rules["$identity:$role:$context"] = [
             $identity,
             $role,
             $context,

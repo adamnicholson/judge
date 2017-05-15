@@ -14,10 +14,10 @@ abstract class RepositoryIntegrationTestCase extends TestCase
     public function testRuleSaveAndGet()
     {
         $repo = $this->getRepository();
-        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_GRANT);
-        $repo->saveRule('adam', 'PRODUCTS', null, Repository::STATE_REVOKE);
-        $this->assertEquals($repo->getRuleState('adam', 'ORDERS', null), Repository::STATE_GRANT);
-        $this->assertEquals($repo->getRuleState('adam', 'PRODUCTS', null), Repository::STATE_REVOKE);
+        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_ALLOW);
+        $repo->saveRule('adam', 'PRODUCTS', null, Repository::STATE_DENY);
+        $this->assertEquals($repo->getRuleState('adam', 'ORDERS', null), Repository::STATE_ALLOW);
+        $this->assertEquals($repo->getRuleState('adam', 'PRODUCTS', null), Repository::STATE_DENY);
     }
 
     public function testRoleSaveGetAndRemove()
@@ -42,5 +42,17 @@ abstract class RepositoryIntegrationTestCase extends TestCase
         $this->assertEquals($repo->getIdentities(), ['adam', 'cli']);
         $repo->removeIdentity('cli');
         $this->assertEquals($repo->getIdentities(), ['adam']);
+    }
+
+    public function test_rule_saves_can_be_overridden()
+    {
+        $repo = $this->getRepository();#
+        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_ALLOW);
+        $this->assertEquals(Repository::STATE_ALLOW, $repo->getRuleState('adam', 'ORDERS', null));
+        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_ALLOW);
+        $this->assertEquals(Repository::STATE_ALLOW, $repo->getRuleState('adam', 'ORDERS', null));
+
+        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_DENY);
+        $this->assertEquals(Repository::STATE_DENY, $repo->getRuleState('adam', 'ORDERS', null));
     }
 }

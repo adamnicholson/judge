@@ -29,12 +29,30 @@ class PDORepository implements Repository
      */
     public function saveRule($identity, $role, $context, $state)
     {
-        $this->query("INSERT INTO " . $this->ruleTableName . " (`identity`, `role`, `context`, `state`) VALUES (?, ?, ?, ?)", [
+        $context = $context ?: '';
+
+        $exists = $this->query(
+            "SELECT * FROM " . $this->ruleTableName . " WHERE `identity` = ? AND `role` = ? AND `context` = ?",
+            [$identity, $role, $context]
+        )->fetchObject();
+
+        if (!$exists) {
+            $this->query("INSERT INTO " . $this->ruleTableName . " (`identity`, `role`, `context`, `state`) VALUES (?, ?, ?, ?)", [
                 $identity,
                 $role,
-                $context ?: '',
+                $context,
                 $state
             ]);
+        } else {
+            $this->query("UPDATE " . $this->ruleTableName . " SET `state` = ? WHERE `identity` = ? AND `role` = ? AND `context` = ?", [
+                $state,
+                $identity,
+                $role,
+                $context
+            ]);
+        }
+
+
     }
 
     /**
@@ -149,6 +167,7 @@ class PDORepository implements Repository
     {
         $query = $this->pdo->prepare($statement);
         $query->execute($arguments);
+
         return $query;
     }
 
