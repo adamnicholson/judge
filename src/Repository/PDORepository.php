@@ -52,8 +52,6 @@ class PDORepository implements Repository
                 $context
             ]);
         }
-
-
     }
 
     /**
@@ -122,7 +120,15 @@ class PDORepository implements Repository
      */
     public function saveIdentity($identity, $parent = null)
     {
-        $this->query("INSERT INTO " . $this->identityTableName . " (`name`, `parent`) VALUES (?, ?)", [$identity, $parent]);
+        $exists = $this->query("SELECT * FROM " . $this->identityTableName . " WHERE `name` = ?", [
+            $identity,
+        ])->fetchObject();
+
+        if (!$exists) {
+            $this->query("INSERT INTO " . $this->identityTableName . " (`name`, `parent`) VALUES (?, ?)", [$identity, $parent]);
+        } else {
+            $this->query("UPDATE " . $this->identityTableName . " SET `parent` = ? WHERE `name` = ?", [$parent, $identity]);
+        }
     }
 
     /**

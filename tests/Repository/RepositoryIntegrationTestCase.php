@@ -55,4 +55,13 @@ abstract class RepositoryIntegrationTestCase extends TestCase
         $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_DENY);
         $this->assertEquals(Repository::STATE_DENY, $repo->getRuleState('adam', 'ORDERS', null));
     }
+
+    public function test_identities_can_be_updated()
+    {
+        $repo = $this->getRepository();
+        $repo->saveIdentity('adam', 'management');
+        $this->assertEquals('management', $repo->getIdentityParent('adam'));
+        $repo->saveIdentity('adam', 'staff');
+        $this->assertEquals('staff', $repo->getIdentityParent('adam'));
+    }
 }
