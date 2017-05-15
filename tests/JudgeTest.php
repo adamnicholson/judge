@@ -16,7 +16,7 @@ class JudgeTest extends TestCase
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
-        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_GRANT)->shouldBeCalled();
+        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_ALLOW)->shouldBeCalled();
         $judge->allow('adam', 'ORDERS');
     }
 
@@ -24,7 +24,7 @@ class JudgeTest extends TestCase
     {
         $repo = $this->prophesize('Judge\Repository\Repository');
         $judge = new Judge($repo->reveal());
-        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_REVOKE)->shouldBeCalled();
+        $repo->saveRule('adam', 'ORDERS', null, Repository::STATE_DENY)->shouldBeCalled();
         $judge->deny('adam', 'ORDERS');
     }
 
@@ -41,7 +41,7 @@ class JudgeTest extends TestCase
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
-        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_ALLOW);
 
         $this->assertTrue($judge->check('adam', 'ORDERS'));
     }
@@ -52,7 +52,7 @@ class JudgeTest extends TestCase
         $judge = new Judge($repo->reveal());
 
         $repo->getIdentityParent('adam')->willReturn(null);
-        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_REVOKE);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_DENY);
 
         $this->assertFalse($judge->check('adam', 'ORDERS'));
     }
@@ -76,7 +76,7 @@ class JudgeTest extends TestCase
 
         $repo->getIdentityParent('adam')->willReturn('administrator');
         $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
-        $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+        $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(Repository::STATE_ALLOW);
 
         $this->assertTrue($judge->check('adam', 'ORDERS'));
     }
@@ -88,7 +88,7 @@ class JudgeTest extends TestCase
 
         $repo->getIdentityParent('adam')->willReturn('administrator');
         $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
-        $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(Repository::STATE_REVOKE);
+        $repo->getRuleState('administrator', 'ORDERS', null)->willReturn(Repository::STATE_DENY);
 
         $this->assertFalse($judge->check('adam', 'ORDERS'));
     }
@@ -115,7 +115,7 @@ class JudgeTest extends TestCase
         $repo->getIdentityParent('adam')->willReturn(null);
         $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
         $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
-        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_ALLOW);
 
         $this->assertTrue($judge->check('adam', 'ORDERS_EDIT'));
     }
@@ -128,7 +128,7 @@ class JudgeTest extends TestCase
         $repo->getIdentityParent('adam')->willReturn(null);
         $repo->getRoleParent('ORDERS_EDIT')->willReturn('ORDERS');
         $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
-        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_REVOKE);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_DENY);
 
         $this->assertFalse($judge->check('adam', 'ORDERS_EDIT'));
     }
@@ -176,7 +176,7 @@ class JudgeTest extends TestCase
         $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
         $repo->getRuleState('admins', 'ORDERS_EDIT', null)->willReturn(null);
         $repo->getRuleState('adam', 'ORDERS', null)->willReturn(null);
-        $repo->getRuleState('admins', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+        $repo->getRuleState('admins', 'ORDERS', null)->willReturn(Repository::STATE_ALLOW);
 
         $this->assertTrue($judge->check('adam', 'ORDERS_EDIT'));
     }
@@ -189,7 +189,7 @@ class JudgeTest extends TestCase
         $repo->getIdentityParent('adam')->willReturn(null);
         $repo->getRoleParent('ORDERS_EDIT')->willReturn(null);
         $repo->getRuleState('adam', 'ORDERS_EDIT', 5)->willReturn(null);
-        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(Repository::STATE_GRANT);
+        $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(Repository::STATE_ALLOW);
 
         $this->assertTrue($judge->check('adam', 'ORDERS_EDIT', 5));
     }
@@ -204,7 +204,7 @@ class JudgeTest extends TestCase
         $repo->getRoleParent('ORDERS')->willReturn(null);
         $repo->getRuleState('adam', 'ORDERS_EDIT', 5)->willReturn(null);
         $repo->getRuleState('adam', 'ORDERS_EDIT', null)->willReturn(null);
-        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_GRANT);
+        $repo->getRuleState('adam', 'ORDERS', null)->willReturn(Repository::STATE_ALLOW);
 
         $this->assertTrue($judge->check('adam', 'ORDERS_EDIT', 5));
     }

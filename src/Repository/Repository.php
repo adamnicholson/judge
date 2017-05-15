@@ -4,8 +4,8 @@ namespace Judge\Repository;
 
 interface Repository
 {
-    const STATE_GRANT = 'GRANT';
-    const STATE_REVOKE = 'REVOKE';
+    const STATE_ALLOW = 'ALLOW';
+    const STATE_DENY = 'DENY';
 
     /**
      * Save a rule

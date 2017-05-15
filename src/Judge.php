@@ -33,7 +33,7 @@ class Judge
             $state = $this->getRepository()->getRuleState($innerIdentity, $role, $context);
 
             if ($state) {
-                return $state === Repository::STATE_GRANT;
+                return $state === Repository::STATE_ALLOW;
             }
 
             $innerIdentity = $this->getRepository()->getIdentityParent($innerIdentity);
@@ -94,7 +94,7 @@ class Judge
      */
     public function allow($identity, $role, $context = null)
     {
-        $this->repository->saveRule($identity, $role, $context, Repository::STATE_GRANT);
+        $this->repository->saveRule($identity, $role, $context, Repository::STATE_ALLOW);
     }
 
     /**
@@ -104,7 +104,7 @@ class Judge
      */
     public function deny($identity, $role, $context = null)
     {
-        $this->repository->saveRule($identity, $role, $context, Repository::STATE_REVOKE);
+        $this->repository->saveRule($identity, $role, $context, Repository::STATE_DENY);
     }
 
     /**
