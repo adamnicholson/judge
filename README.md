@@ -167,28 +167,52 @@ paul			| ORDERS_VIEW		| 5			| REVOKED
 
 The main problem with all of the examples so far is that roles & identities are not persisted across requests - meaning you'd need to reconfigure Judge to understand your identity/role hierarchies, and allow/deny all the relevant permissions, on every request.
 
-Judge ships with a number of `Judge\Repository\Repository` implementations to persist these relationships:
+These rules/roles/identities can be persisted between requests by using a `Judge\Repository\Repository`, which can be passed to `Judge::__construct()` as the first argument.
 
-- `ArrayRepository` : Store data in an array for the duration of this request
-- `FlatbaseRepository` : Store to a [flat file database](https://github.com/adamnicholson/flatbase) - no setup required
+Judge ships with a number of `Judge\Repository\Repository` implementations to use out of the box:
+
 - `PDORepository` : Store data to a [PDO](http://php.net/manual/en/pdo.drivers.php) compatible DB, like MySQL, SQLite, PostgreSQL
+- `FlatbaseRepository` : Store to a [flat file database](https://github.com/adamnicholson/flatbase)
+- `ArrayRepository` : Store data in an array for the duration of this request
 
-Using a repository:
+> If you do not pass a `Repository` to Judge's constructor, then `ArrayRepository` will be used by default.
+
+
+#### PDORepository
+
+Store data to a [PDO](http://php.net/manual/en/pdo.drivers.php) compatible DB, like MySQL, SQLite, PostgreSQL
 
 ```php
-// PDORepository
 $pdo = new PDO('mysql:host=db;dbname=site', 'root');
 $repo = new Judge\Repository\PDORepository($pdo);
 $judge = new Judge\Judge($repo);
+```
 
-// FlatbaseRepository
+You may wish to use the `PDORepository` in conjunction with the `LazyRepositoryWrapper`, so that you do not have to instantiate a `PDO` connection until it is actually requested.
+
+```php
+$repo = new Judge\Repository\LazyRepositoryWrapper(function () {
+    $pdo = new PDO('mysql:host=db;dbname=site', 'root');
+    return new Judge\Repository\PDORepository($pdo);
+});
+$judge = new Judge\Judge($repo);
+```
+
+
+#### ArrayRepository
+Store data in an in-memory array for the duration of this process.
+
+```php
+$judge = new Judge\Judge(new ArrayRepository);
+```
+
+#### FlatbaseRepository
+Store to a [flat file database](https://github.com/adamnicholson/flatbase).
+
+```php
 $storage = new Flatbase\Storage\Filesystem('/some/storage/path');
 $flatbase = new Flatbase\Flatbase($storage);
 $repo = new Judge\Repository\FlatbaseRepository($pdo);
 $judge = new Judge\Judge($repo);
-
-// ArrayRepository
-$judge = new Judge\Judge(new ArrayRepository());
 ```
 
-> If you do not pass a `Repository` to Judge's constructor, then `ArrayRepository` will be used by default.
