@@ -4,7 +4,7 @@ namespace Judge\Repository\PDO;
 
 use Judge\Repository\PDORepository;
 
-class TableCreator
+final class TableCreator
 {
     /**
      * @var PDORepository

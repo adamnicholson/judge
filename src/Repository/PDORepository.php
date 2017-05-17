@@ -2,7 +2,7 @@
 
 namespace Judge\Repository;
 
-class PDORepository implements Repository
+final class PDORepository implements Repository
 {
     private $identityTableName = 'judge_identity';
     private $roleTableName = 'judge_role';

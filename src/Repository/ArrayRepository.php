@@ -2,7 +2,7 @@
 
 namespace Judge\Repository;
 
-class ArrayRepository implements Repository
+final class ArrayRepository implements Repository
 {
     private $rules = [];
     private $roles = [];

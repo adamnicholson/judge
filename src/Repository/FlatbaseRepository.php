@@ -4,7 +4,7 @@ namespace Judge\Repository;
 
 use Flatbase\Flatbase;
 
-class FlatbaseRepository implements Repository
+final class FlatbaseRepository implements Repository
 {
     /**
      * @var \Flatbase\Flatbase
