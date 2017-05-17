@@ -226,35 +226,6 @@ class JudgeTest extends TestCase
 
         $this->assertTrue($judge->enforce('adam', 'ORDERS_EDIT', 5));
     }
-
-    public function testAttemptCallableFiredWhenCheckPasses()
-    {
-        $repo = $this->prophesize(Repository::class);
-        $judge = new JudgeTestStubAlwaysReturningTrueToCheck($repo->reveal());
-
-        $marker = 1;
-        $result = $judge->attempt('adam', 'ORDERS_EDIT', 5, function() use (&$marker) {
-                $marker++;
-                return 'foobar';
-        });
-
-        $this->assertEquals($marker, 2);
-        $this->assertEquals($result, 'foobar');
-    }
-
-    public function testAttemptCallableNotFiredWhenCheckPasses()
-    {
-        $repo = $this->prophesize(Repository::class);
-        $judge = new JudgeTestStubAlwaysReturningFalseToCheck($repo->reveal());
-
-        $marker = 1;
-        $result = $judge->attempt('adam', 'ORDERS_EDIT', 5, function() use (&$marker) {
-                $marker++;
-        });
-
-        $this->assertEquals($marker, 1);
-        $this->assertFalse($result);
-    }
 }
 
 class JudgeTestStubAlwaysReturningTrueToCheck extends Judge

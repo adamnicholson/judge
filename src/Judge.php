@@ -74,20 +74,6 @@ class Judge
     }
 
     /**
-     * Fire a callable if the rule has access granted
-     *
-     * @param $identity
-     * @param $rule
-     * @param null $context
-     * @param callable $callable A callable to execute if access is granted
-     * @return bool|mixed False if they do not have access, else the return value of $callable
-     */
-    public function attempt($identity, $rule, $context = null, callable $callable)
-    {
-        return $this->check($identity, $rule, $context) ? call_user_func($callable) : false;
-    }
-
-    /**
      * @param string $identity
      * @param string $role
      * @param string|null $context
