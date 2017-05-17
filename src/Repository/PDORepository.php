@@ -19,39 +19,22 @@ class PDORepository implements Repository
     }
 
     /**
-     * Save a rule
-     *
-     * @param $identity
-     * @param $role
-     * @param $context
-     * @param string $state Repository::STATE_GRANT or Repository::STATE_REVOKE
-     * @return void
+     * @inheritdoc
      */
     public function saveRule($identity, $role, $context, $state)
     {
         $context = $context ?: '';
 
-        $exists = $this->query("SELECT * FROM " . $this->ruleTableName . " WHERE `identity` = ? AND `role` = ? AND `context` = ?", [
-                $identity,
-                $role,
-                $context
-        ])->fetchObject();
-
-        if (!$exists) {
-            $this->query("INSERT INTO " . $this->ruleTableName . " (`identity`, `role`, `context`, `state`) VALUES (?, ?, ?, ?)", [
-                $identity,
-                $role,
-                $context,
-                $state
-            ]);
-        } else {
-            $this->query("UPDATE " . $this->ruleTableName . " SET `state` = ? WHERE `identity` = ? AND `role` = ? AND `context` = ?", [
-                $state,
-                $identity,
-                $role,
-                $context
-            ]);
-        }
+        $this->upsert($this->ruleTableName, [
+            ['identity', $identity],
+            ['role', $role],
+            ['context', $context],
+            ['state', $state]
+        ], [
+            ['identity', $identity],
+            ['role', $role],
+            ['context', $context],
+        ]);
     }
 
     /**
@@ -78,6 +61,7 @@ class PDORepository implements Repository
      */
     public function saveRole($role, $parent)
     {
+        $this->removeRole($role);
         $this->query("INSERT INTO " . $this->roleTableName . " (`name`, `parent`) VALUES (?, ?)", [$role, $parent]);
     }
 
@@ -120,24 +104,12 @@ class PDORepository implements Repository
      */
     public function saveIdentity($identity, $parent = null)
     {
-        $exists = $this->query("SELECT * FROM " . $this->identityTableName . " WHERE `name` = ?", [
-            $identity,
-        ])->fetchObject();
-
-        if (!$exists) {
-            $this->query("INSERT INTO " . $this->identityTableName . " (`name`, `parent`) VALUES (?, ?)", [$identity, $parent]);
-        } else {
-            $this->query("UPDATE " . $this->identityTableName . " SET `parent` = ? WHERE `name` = ?", [$parent, $identity]);
-        }
-    }
-
-    /**
-     * @param string $identity
-     * @return void
-     */
-    public function removeIdentity($identity)
-    {
-        $this->query("DELETE FROM " . $this->identityTableName . " WHERE `name` = ?", [$identity]);
+        $this->upsert($this->identityTableName, [
+            ['name', $identity],
+            ['parent', $parent],
+        ], [
+            ['name', $identity],
+        ]);
     }
 
     /**
@@ -163,19 +135,6 @@ class PDORepository implements Repository
         return array_map(function ($row) {
             return $row['name'];
         }, $query);
-    }
-
-    /**
-     * @param $statement
-     * @param array $arguments
-     * @return \PDOStatement
-     */
-    private function query($statement, $arguments = [])
-    {
-        $query = $this->pdo->prepare($statement);
-        $query->execute($arguments);
-
-        return $query;
     }
 
     /**
@@ -208,5 +167,75 @@ class PDORepository implements Repository
     public function getPdo(): \PDO
     {
         return $this->pdo;
+    }
+
+    /**
+     * @param string $table
+     * @param array $params
+     * @param array $matchOn
+     */
+    public function upsert(string $table, array $params, array $matchOn)
+    {
+        $exists = $this->select($table, $matchOn)->fetchObject();
+
+        if (!$exists) {
+            $this->insert($table, $params);
+        } else {
+            $this->update($table, $params, $matchOn);
+        }
+    }
+
+    /**
+     * @param string $table
+     * @param array $params
+     */
+    private function insert(string $table, array $params)
+    {
+        $sql = "INSERT INTO {$table} (" . implode(',', array_map('array_shift', $params))  . ') VALUES (' . implode(',', array_pad([], count($params), '?')) . ')';
+
+        $this->query($sql, array_values(array_map('end', $params)));
+    }
+
+    /**
+     * @param string $table
+     * @param array $params
+     * @param array $matchOn
+     */
+    private function update(string $table, array $params, array $matchOn)
+    {
+        $sql = "UPDATE {$table} SET " . implode(' , ', array_map(function (array $element) {
+                return "`{$element[0]}` = ?";
+            }, $params)) . " WHERE " . implode(' AND ', array_map(function (array $element) {
+                return "`{$element[0]}` = ?";
+            }, $matchOn));
+
+        $this->query($sql, array_merge(array_map('end', $params), array_map('end', $matchOn)));
+    }
+
+    /**
+     * @param string $table
+     * @param array $matchOn
+     * @return \PDOStatement
+     */
+    private function select(string $table, array $matchOn)
+    {
+        $sql = "SELECT * FROM {$table} WHERE " . implode(' AND ', array_map(function (array $element) {
+                return "`{$element[0]}` = ?";
+            }, $matchOn));
+
+        return $this->query($sql, array_map('end', $matchOn));
+    }
+
+    /**
+     * @param $statement
+     * @param array $arguments
+     * @return \PDOStatement
+     */
+    private function query($statement, $arguments = [])
+    {
+        $query = $this->pdo->prepare($statement);
+        $query->execute($arguments);
+
+        return $query;
     }
 }

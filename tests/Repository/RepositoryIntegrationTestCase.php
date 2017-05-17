@@ -20,7 +20,7 @@ abstract class RepositoryIntegrationTestCase extends TestCase
         $this->assertEquals($repo->getRuleState('adam', 'PRODUCTS', null), Repository::STATE_DENY);
     }
 
-    public function testRoleSaveGetAndRemove()
+    public function test_roles_can_be_saved_and_updated()
     {
         $repo = $this->getRepository();
         $repo->saveRole('ORDER_EDIT', 'ORDER');
@@ -28,20 +28,19 @@ abstract class RepositoryIntegrationTestCase extends TestCase
         $this->assertEquals($repo->getRoleParent('ORDER_EDIT'), 'ORDER');
         $this->assertEquals($repo->getRoleParent('PRODUCT'), null);
         $this->assertEquals($repo->getRoles(), ['ORDER_EDIT', 'PRODUCT']);
-        $repo->removeRole('PRODUCT');
-        $this->assertEquals($repo->getRoles(), ['ORDER_EDIT']);
+        $repo->saveRole('ORDER_EDIT', 'ALL_ROLES');
+        $this->assertEquals($repo->getRoleParent('ORDER_EDIT'), 'ALL_ROLES');
     }
 
-    public function testIdentitySaveGetAndRemove()
+    public function test_identities_can_be_saved_and_updated()
     {
         $repo = $this->getRepository();
         $repo->saveIdentity('adam', 'admin');
         $repo->saveIdentity('cli', null);
         $this->assertEquals($repo->getIdentityParent('adam'), 'admin');
         $this->assertEquals($repo->getIdentityParent('cli'), null);
-        $this->assertEquals($repo->getIdentities(), ['adam', 'cli']);
-        $repo->removeIdentity('cli');
-        $this->assertEquals($repo->getIdentities(), ['adam']);
+        $repo->saveIdentity('adam', 'staff');
+        $this->assertEquals($repo->getIdentityParent('adam'), 'staff');
     }
 
     public function test_rule_saves_can_be_overridden()

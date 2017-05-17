@@ -13,7 +13,7 @@ interface Repository
      * @param $identity
      * @param $role
      * @param $context
-     * @param string $state STATE_GRANT or STATE_REVOKE
+     * @param string $state STATE_ALLOW or STATE_DENY
      * @return void
      */
     public function saveRule($identity, $role, $context, $state);
@@ -35,12 +35,6 @@ interface Repository
 
     /**
      * @param $role
-     * @return void
-     */
-    public function removeRole($role);
-
-    /**
-     * @param $role
      * @return array|null
      */
     public function getRoleParent($role);
@@ -58,21 +52,8 @@ interface Repository
     public function saveIdentity($identity, $parent = null);
 
     /**
-     * @param string $identity
-     * @return void
-     */
-    public function removeIdentity($identity);
-
-    /**
      * @param $identity
      * @return string|null
      */
     public function getIdentityParent($identity);
-
-    /**
-     * Get all of the saved identities
-     *
-     * @return array
-     */
-    public function getIdentities();
 }

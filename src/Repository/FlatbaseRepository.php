@@ -106,7 +106,7 @@ class FlatbaseRepository implements Repository
      * @param $role
      * @return void
      */
-    public function removeRole($role)
+    private function removeRole($role)
     {
         $this->flatbase->delete()->in($this->roleCollectionName)
             ->where('role', '==', $role)
@@ -163,7 +163,7 @@ class FlatbaseRepository implements Repository
      * @param string $identity
      * @return void
      */
-    public function removeIdentity($identity)
+    private function removeIdentity($identity)
     {
         $this->flatbase->delete()->in($this->identityCollectionName)
             ->where('identity', '==', $identity)
