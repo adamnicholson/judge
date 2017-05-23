@@ -86,18 +86,6 @@ final class PDORepository implements Repository
     }
 
     /**
-     * @return array
-     */
-    public function getRoles()
-    {
-        $query = $this->query("SELECT * FROM " . $this->roleTableName)->fetchAll();
-
-        return array_map(function ($row) {
-                return $row['name'];
-            }, $query);
-    }
-
-    /**
      * @param string $identity
      * @param string $parent
      * @return void

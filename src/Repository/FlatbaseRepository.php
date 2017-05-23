@@ -131,20 +131,6 @@ final class FlatbaseRepository implements Repository
     }
 
     /**
-     * @return array
-     */
-    public function getRoles()
-    {
-        $roles = [];
-
-        foreach ($this->flatbase->read()->in($this->roleCollectionName)->get() as $role) {
-            $roles[] = $role['role'];
-        }
-
-        return $roles;
-    }
-
-    /**
      * @param string $identity
      * @param string $parent
      * @return void

@@ -77,14 +77,6 @@ final class ArrayRepository implements Repository
     }
 
     /**
-     * @return array
-     */
-    public function getRoles()
-    {
-        return array_keys($this->roles);
-    }
-
-    /**
      * @param string $identity
      * @param string $parent
      * @return void

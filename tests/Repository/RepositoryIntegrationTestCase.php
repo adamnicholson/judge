@@ -27,7 +27,6 @@ abstract class RepositoryIntegrationTestCase extends TestCase
         $repo->saveRole('PRODUCT', null);
         $this->assertEquals($repo->getRoleParent('ORDER_EDIT'), 'ORDER');
         $this->assertEquals($repo->getRoleParent('PRODUCT'), null);
-        $this->assertEquals($repo->getRoles(), ['ORDER_EDIT', 'PRODUCT']);
         $repo->saveRole('ORDER_EDIT', 'ALL_ROLES');
         $this->assertEquals($repo->getRoleParent('ORDER_EDIT'), 'ALL_ROLES');
     }

@@ -45,11 +45,6 @@ final class LazyRepositoryWrapper implements \Judge\Repository\Repository
         return $this->inner()->getRoleParent($role);
     }
 
-    public function getRoles()
-    {
-        return $this->inner()->getRoles();
-    }
-
     public function saveIdentity($identity, $parent = null)
     {
         $this->inner()->saveIdentity($identity, $parent);

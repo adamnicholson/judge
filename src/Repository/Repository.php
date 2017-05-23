@@ -40,11 +40,6 @@ interface Repository
     public function getRoleParent($role);
 
     /**
-     * @return array
-     */
-    public function getRoles();
-
-    /**
      * @param string $identity
      * @param string $parent
      * @return void
