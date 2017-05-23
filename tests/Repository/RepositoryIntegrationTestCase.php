@@ -62,4 +62,26 @@ abstract class RepositoryIntegrationTestCase extends TestCase
         $repo->saveIdentity('adam', 'staff');
         $this->assertEquals('staff', $repo->getIdentityParent('adam'));
     }
+
+    public function test_saved_rules_can_be_deleted()
+    {
+        $repo = $this->getRepository();
+        $this->assertEquals(null, $repo->getRuleState('adam', 'WRITE', 'foostate'));
+        $repo->saveRule('adam', 'READ', null, Repository::STATE_ALLOW);
+        $repo->saveRule('adam', 'WRITE', null, Repository::STATE_DENY);
+        $repo->saveRule('adam', 'WRITE', 'foostate', Repository::STATE_ALLOW);
+        $repo->saveRule('adam', 'WRITE', 'barstate', Repository::STATE_DENY);
+
+        $this->assertEquals(Repository::STATE_ALLOW, $repo->getRuleState('adam', 'WRITE', 'foostate'));
+        $this->assertEquals(Repository::STATE_DENY, $repo->getRuleState('adam', 'WRITE', 'barstate'));
+        $this->assertEquals(Repository::STATE_DENY, $repo->getRuleState('adam', 'WRITE', null));
+        $this->assertEquals(Repository::STATE_ALLOW, $repo->getRuleState('adam', 'READ', null));
+
+        $repo->deleteRule('adam', 'WRITE', 'foostate');
+
+        $this->assertEquals(null, $repo->getRuleState('adam', 'WRITE', 'foostate'));
+        $this->assertEquals(Repository::STATE_DENY, $repo->getRuleState('adam', 'WRITE', 'barstate'));
+        $this->assertEquals(Repository::STATE_DENY, $repo->getRuleState('adam', 'WRITE', null));
+        $this->assertEquals(Repository::STATE_ALLOW, $repo->getRuleState('adam', 'READ', null));
+    }
 }

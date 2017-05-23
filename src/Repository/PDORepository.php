@@ -37,11 +37,17 @@ final class PDORepository implements Repository
         ]);
     }
 
+    public function deleteRule($identity, $role, $context)
+    {
+        $this->delete($this->ruleTableName, [
+            ['identity', $identity],
+            ['role', $role],
+            ['context', $context],
+        ]);
+    }
+
     /**
-     * @param $identity
-     * @param $role
-     * @param $context
-     * @return string|null
+     * @inheritdoc
      */
     public function getRuleState($identity, $role, $context)
     {
@@ -55,9 +61,7 @@ final class PDORepository implements Repository
     }
 
     /**
-     * @param $role
-     * @param $parent
-     * @return void
+     * @inheritdoc
      */
     public function saveRole($role, $parent)
     {
@@ -75,8 +79,7 @@ final class PDORepository implements Repository
     }
 
     /**
-     * @param $role
-     * @return array|null
+     * @inheritdoc
      */
     public function getRoleParent($role)
     {
@@ -86,9 +89,7 @@ final class PDORepository implements Repository
     }
 
     /**
-     * @param string $identity
-     * @param string $parent
-     * @return void
+     * @inheritdoc
      */
     public function saveIdentity($identity, $parent = null)
     {
@@ -101,28 +102,13 @@ final class PDORepository implements Repository
     }
 
     /**
-     * @param $identity
-     * @return string|null
+     * @inheritdoc
      */
     public function getIdentityParent($identity)
     {
         $identity = $this->query("SELECT * FROM " . $this->identityTableName . " WHERE `name` = ?", [$identity])->fetchObject();
 
         return $identity ? $identity->parent : null;
-    }
-
-    /**
-     * Get all of the saved identities
-     *
-     * @return array
-     */
-    public function getIdentities()
-    {
-        $query = $this->query("SELECT * FROM " . $this->identityTableName)->fetchAll();
-
-        return array_map(function ($row) {
-            return $row['name'];
-        }, $query);
     }
 
     /**
@@ -208,6 +194,20 @@ final class PDORepository implements Repository
     private function select(string $table, array $matchOn)
     {
         $sql = "SELECT * FROM {$table} WHERE " . implode(' AND ', array_map(function (array $element) {
+                return "`{$element[0]}` = ?";
+            }, $matchOn));
+
+        return $this->query($sql, array_map('end', $matchOn));
+    }
+
+    /**
+     * @param string $table
+     * @param array $matchOn
+     * @return \PDOStatement
+     */
+    private function delete(string $table, array $matchOn)
+    {
+        $sql = "DELETE FROM {$table} WHERE " . implode(' AND ', array_map(function (array $element) {
                 return "`{$element[0]}` = ?";
             }, $matchOn));
 

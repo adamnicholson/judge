@@ -9,13 +9,7 @@ final class ArrayRepository implements Repository
     private $identities = [];
 
     /**
-     * Save a rule
-     *
-     * @param $identity
-     * @param $role
-     * @param $context
-     * @param string $state STATE_GRANT or STATE_REVOKE
-     * @return void
+     * @inheritdoc
      */
     public function saveRule($identity, $role, $context, $state)
     {
@@ -28,10 +22,19 @@ final class ArrayRepository implements Repository
     }
 
     /**
-     * @param $identity
-     * @param $role
-     * @param $context
-     * @return string|null
+     * @inheritdoc
+     */
+    public function deleteRule($identity, $role, $context)
+    {
+        foreach ($this->rules as $i => $rule) {
+            if ($rule[0] === $identity && $rule[1] === $role && $rule[2] === $context) {
+                unset($this->rules[$i]);
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
      */
     public function getRuleState($identity, $role, $context)
     {
@@ -45,9 +48,7 @@ final class ArrayRepository implements Repository
     }
 
     /**
-     * @param $role
-     * @param $parent
-     * @return void
+     * @inheritdoc
      */
     public function saveRole($role, $parent)
     {
@@ -55,17 +56,7 @@ final class ArrayRepository implements Repository
     }
 
     /**
-     * @param $role
-     * @return void
-     */
-    public function removeRole($role)
-    {
-        unset($this->roles[$role]);
-    }
-
-    /**
-     * @param $role
-     * @return array|null
+     * @inheritdoc
      */
     public function getRoleParent($role)
     {
@@ -77,9 +68,7 @@ final class ArrayRepository implements Repository
     }
 
     /**
-     * @param string $identity
-     * @param string $parent
-     * @return void
+     * @inheritdoc
      */
     public function saveIdentity($identity, $parent = null)
     {
@@ -87,17 +76,7 @@ final class ArrayRepository implements Repository
     }
 
     /**
-     * @param string $identity
-     * @return void
-     */
-    public function removeIdentity($identity)
-    {
-        unset($this->identities[$identity]);
-    }
-
-    /**
-     * @param $identity
-     * @return string|null
+     * @inheritdoc
      */
     public function getIdentityParent($identity)
     {
@@ -106,15 +85,5 @@ final class ArrayRepository implements Repository
         }
 
         return null;
-    }
-
-    /**
-     * Get all of the saved identities
-     *
-     * @return array
-     */
-    public function getIdentities()
-    {
-        return array_keys($this->identities);
     }
 }

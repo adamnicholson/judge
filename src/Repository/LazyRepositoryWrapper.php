@@ -30,6 +30,11 @@ final class LazyRepositoryWrapper implements \Judge\Repository\Repository
         $this->inner()->saveRule($identity, $role, $context, $state);
     }
 
+    public function deleteRule($identity, $role, $context)
+    {
+        $this->inner()->deleteRule($identity, $role, $context);
+    }
+
     public function getRuleState($identity, $role, $context)
     {
         return $this->inner()->getRuleState($identity, $role, $context);
@@ -61,9 +66,7 @@ final class LazyRepositoryWrapper implements \Judge\Repository\Repository
      */
     private function inner()
     {
-//        dump("inner");
         if ($this->repository === null) {
-//            dump("making");
             $this->repository = call_user_func($this->factory);
             if (!$this->repository instanceof \Judge\Repository\Repository) {
                 throw new UnexpectedValueException(
@@ -72,8 +75,6 @@ final class LazyRepositoryWrapper implements \Judge\Repository\Repository
                 );
             }
         }
-
-//        dump($this->repository);
 
         return $this->repository;
     }

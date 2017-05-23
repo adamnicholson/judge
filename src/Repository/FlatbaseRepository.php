@@ -42,21 +42,11 @@ final class FlatbaseRepository implements Repository
     }
 
     /**
-     * Save a rule
-     *
-     * @param $identity
-     * @param $role
-     * @param $context
-     * @param string $state STATE_GRANT or STATE_REVOKE
-     * @return void
+     * @inheritdoc
      */
     public function saveRule($identity, $role, $context, $state)
     {
-        $this->flatbase->delete()->in($this->ruleCollectionName)
-            ->where('identity', '==', $identity)
-            ->where('role', '==', $role)
-            ->where('context', '==', $context)
-            ->execute();
+        $this->deleteRule($identity, $role, $context);
 
         $this->flatbase->insert()->in($this->ruleCollectionName)->setValues([
                 'identity' => $identity,
@@ -67,10 +57,19 @@ final class FlatbaseRepository implements Repository
     }
 
     /**
-     * @param $identity
-     * @param $role
-     * @param $context
-     * @return string|null
+     * @inheritdoc
+     */
+    public function deleteRule($identity, $role, $context)
+    {
+        $this->flatbase->delete()->in($this->ruleCollectionName)
+            ->where('identity', '==', $identity)
+            ->where('role', '==', $role)
+            ->where('context', '==', $context)
+            ->execute();
+    }
+
+    /**
+     * @inheritdoc
      */
     public function getRuleState($identity, $role, $context)
     {
@@ -88,9 +87,7 @@ final class FlatbaseRepository implements Repository
     }
 
     /**
-     * @param $role
-     * @param $parent
-     * @return void
+     * @inheritdoc
      */
     public function saveRole($role, $parent)
     {
@@ -114,8 +111,7 @@ final class FlatbaseRepository implements Repository
     }
 
     /**
-     * @param $role
-     * @return array|null
+     * @inheritdoc
      */
     public function getRoleParent($role)
     {
@@ -131,9 +127,7 @@ final class FlatbaseRepository implements Repository
     }
 
     /**
-     * @param string $identity
-     * @param string $parent
-     * @return void
+     * @inheritdoc
      */
     public function saveIdentity($identity, $parent = null)
     {
@@ -157,8 +151,7 @@ final class FlatbaseRepository implements Repository
     }
 
     /**
-     * @param $identity
-     * @return string|null
+     * @inheritdoc
      */
     public function getIdentityParent($identity)
     {

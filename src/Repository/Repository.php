@@ -19,6 +19,16 @@ interface Repository
     public function saveRule($identity, $role, $context, $state);
 
     /**
+     * Delete an existing rule
+     *
+     * @param string $identity
+     * @param string $role
+     * @param string $context
+     * @return void
+     */
+    public function deleteRule($identity, $role, $context);
+
+    /**
      * @param string $identity
      * @param string $role
      * @param string $context
@@ -47,7 +57,7 @@ interface Repository
     public function saveIdentity($identity, $parent = null);
 
     /**
-     * @param $identity
+     * @param string $identity
      * @return string|null
      */
     public function getIdentityParent($identity);
