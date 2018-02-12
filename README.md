@@ -1,8 +1,6 @@
 # Judge
 Authorization package for PHP.
 
-> Work in progress
-
 ## Getting Started
 
 ### Roles & Identities
